@@ -4,8 +4,8 @@
 /*
 importa Express,para crear:
 - El servidor.
-- manejar rutas 
-- peticiones HTTP 
+- manejar rutas
+- peticiones HTTP
 -middlewares, etc.
 */
 const express = require('express');
@@ -14,7 +14,7 @@ const express = require('express');
 // -------------------------------------------
 /*
 Crea una instancia de la aplicación Express.
-A partir de aquí, app es el servidor en construcción. 
+A partir de aquí, app es el servidor en construcción.
 Con él puedes:
 - Definir rutas (app.get(), app.post(), etc.)
 - Agregar middlewares (app.use())
@@ -35,10 +35,10 @@ app.use(express.json());
 // -------------------------------------------------
 /*
 Ruta de prueba:(ejemplo temporal)
-Dice: 
+Dice:
 “Cuando el navegador/cliente visite la ruta raíz "/ ".responde con ¡Hola desde app.js!”.
-- req: Es la petición del cliente/navegador.
-- res: Es la respuesta del servidor
+- request: Es la petición del cliente/navegador.
+- response: Es la respuesta del servidor
 - res.send(): Envia un texto de vuelta al cliente
 */
 app.get('/', (req, res) => {
@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 
 // -----------------------------------------------
 /*
-Esto es clave: 
+Esto es clave:
 - permite exportar la variable "app" para que server.js pueda importarla y usarla.
 - Así separas la lógica de configuración (app.js) de la lógica que arranca el servidor (server.js).
 */
