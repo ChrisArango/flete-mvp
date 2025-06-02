@@ -22,4 +22,3 @@ const registerUser = (req, res) => {
 
 module.exports = {registerUser};
 
-// quede en el paso cuatro conectar la ruta al app.js - esto despues de la configuracion de github
