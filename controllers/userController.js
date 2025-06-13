@@ -6,7 +6,7 @@ const registerUser = (req, res) => {
   const {nombre, email, password} = req.body;
 
   if (!nombre || !email || !password) {
-    return res.status(404).json({mensaje: "Todos los campos son obligatorios."});
+    return res.status(400).json({mensaje: "Todos los campos son obligatorios."});
   }
 
   const nuevoUsusario = new User (nombre, email, password);
