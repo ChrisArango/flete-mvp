@@ -1,14 +1,14 @@
 // ver informacion detallada en proyecto flet-notion
 const express = require('express');
-const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 const ownerRoutes = require("./routes/ownerRoutes");
 
 const app = express();
 
 app.use(express.json());
 
-// Toda ruta que empiece con /api será redirigida a authRoutes.
-app.use("/api", authRoutes);
+// Toda ruta que empiece con /api será redirigida a userRoutes.
+app.use("/api", userRoutes);
 app.use("/api/owners", ownerRoutes);
 
 app.get('/', (req, res) => {
