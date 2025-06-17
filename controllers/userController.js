@@ -1,5 +1,5 @@
 const User = require("../models/user");
-let  usuarios =[];
+let  listOfUsers =[];
 
 const registerUser = (req, res) => {
 
@@ -9,11 +9,11 @@ const registerUser = (req, res) => {
     return res.status(400).json({mensaje: "Todos los campos son obligatorios."});
   }
 
-  const nuevoUsusario = new User (nombre, email, password);
+  const newUser = new User (nombre, email, password);
 
-  usuarios.push(nuevoUsusario);
+  listOfUsers.push(newUser);
 
-  res.status(201).json({mensaje: "Usuario registrado con éxito", usuario: nuevoUsusario});
+  res.status(201).json({mensaje: "Usuario registrado con éxito", usuario: newUser});
 };
 
 module.exports = {registerUser};
