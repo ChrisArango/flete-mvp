@@ -1,5 +1,3 @@
-//ver informacion detallada en proyecto flet-notion
-
 const registerOwner = (req, res) => {
 
   const { nombre, cedula, celular, marca, modelo, placa } = req.body;
