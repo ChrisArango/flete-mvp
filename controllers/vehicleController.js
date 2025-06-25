@@ -19,17 +19,48 @@ const addVehicle = (req, res) => {
     });
   }
 
-  const newVehicle = new Vehicle (placa, marca, modelo, clase, ownerId);
+  const newVehicle = new Vehicle(placa, marca, modelo, clase, ownerId);
 
   listOfVehicle.push(newVehicle);
   res.status(201).json({
-    mensaje:"Vehiculo registado exitosamente",
+    mensaje: "Vehiculo registado exitosamente",
     Vehiculo: newVehicle
   });
 }
 
+const getAllVehicle = (req, res) => {
+  res.status(200).json(listOfVehicle)
+}
+
+const getVehicleByPlaca = (req, res) => {
+  const { placa } = req.params;
+
+  const vehicle = listOfVehicle.find(vehicle => vehicle.placa === placa);
+  if (!vehicle) {
+    return res.status(404).json({
+      mensaje: "Vehiculo no encontrado"
+    });
+  }
+  res.status(200).json(vehicle);
+}
+
+const getVehicleByOwner = (req, res) => {
+  const { ownerId } = req.query;
+
+  if (ownerId) {
+    const filteredVehicle = listOfVehicle.filter(vehicle => vehicle.ownerId === ownerId);
+
+    if (filteredVehicle.length === 0) {
+      return res.status(404).json({
+        mensaje: "No se encontraron vehiculos para este propietario."
+      })
+    }
+    res.status(200).json(filteredVehicle);
+  }
+  res.status(200).json(listOfVehicle);
+};
 
 
-module.exports = {addVehicle};
+module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner };
 
 
