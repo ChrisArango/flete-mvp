@@ -47,19 +47,22 @@ const getVehicleByPlaca = (req, res) => {
 const getVehicleByOwner = (req, res) => {
   const { ownerId } = req.query;
 
-  if (ownerId) {
-    const filteredVehicle = listOfVehicle.filter(vehicle => vehicle.ownerId === ownerId);
-
-    if (filteredVehicle.length === 0) {
-      return res.status(404).json({
-        mensaje: "No se encontraron vehiculos para este propietario."
-      })
-    }
-    res.status(200).json(filteredVehicle);
+  if (!ownerId) {
+    return res.status(400).json({
+      mensaje: "Se requiere el ID del propietario para la consulta."
+    });
   }
-  res.status(200).json(listOfVehicle);
-};
 
+  const filteredVehicle = listOfVehicle.filter(vehicle => vehicle.ownerId === ownerId);
+
+  if (filteredVehicle.length === 0) {
+    return res.status(404).json({
+      mensaje: "No se encontraron vehiculos para este propietario."
+    });
+  }
+
+  res.status(200).json(filteredVehicle);
+}
 
 module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner };
 
