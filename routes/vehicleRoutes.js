@@ -12,5 +12,8 @@ router.get("/:placa", vehicleController.getVehicleByPlaca);
 // GET: Obtener vehiculos por propietario /api/vehicles/by-owner?ownerId=123
 router.get("/by-owner", vehicleController.getVehicleByOwner);
 
+// DELETE: eliminar vehiculo por placa
+router.delete("/:placa", vehicleController.deleteVehicle);
+
 
 module.exports = router;

@@ -64,6 +64,24 @@ const getVehicleByOwner = (req, res) => {
   res.status(200).json(filteredVehicle);
 }
 
-module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner };
+const deleteVehicle = (req, res) => {
+
+  const {placa} = req.params;
+
+  const vehicle = listOfVehicle.findIndex(vehicle => vehicle.placa === placa);
+
+  if(vehicle === -1) {
+    return res.status(404).json({
+      mesaje: "Vehiculo no encontrado"
+    });
+  }
+
+  listOfVehicle.splice(vehicle, 1);
+  return res.status(200).json({
+    mensaje: "Vehiculo eliminado exitosamente"
+  });
+}
+
+module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner, deleteVehicle };
 
 
