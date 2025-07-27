@@ -11,12 +11,15 @@ router.get("/", tripController.getAllTrip);
 // rutas especificas primero con query
 // GET: obtener viajes por empresa (query)
 router.get("/by-empresa", tripController.getTripByEmpresa);
-// GET: buscar viajes con filtros combinados (query)
-router.get("/buscar", tripController.getTripByFilters);// posiblemte lo borrare
 
 // Luego rutas genericas con params
 // GET: obtener viajes por placa(params)
 router.get("/:placa", tripController.getTripByPlaca);
 
+// PUT: para actulizar viajes por manifiesto
+router.put('/:manifiesto', tripController.updateTrip);
+
+// DELETE: para eliminar viaje spor manifiesto
+router.delete('/:manifiesto', tripController.deleteTrip);
 
 module.exports = router;

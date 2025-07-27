@@ -64,6 +64,30 @@ const getVehicleByOwner = (req, res) => {
   res.status(200).json(filteredVehicle);
 }
 
+const updateVehicle = (req, res) => {
+  const {placa} = req.params;
+  const dataToUpdate = req.body;
+
+  const vehicle = listOfVehicle.findIndex(vehicle => vehicle.placa === placa);
+
+  if(vehicle === -1) {
+    return res.status(404).json({
+      mesaje: "Vehiculo no encontrado"
+    });
+  }
+
+  // actualizamos con el spread operation
+  listOfVehicle[vehicle] = {
+    ...listOfVehicle[vehicle], // copia todo el objeto
+    ...dataToUpdate // cambio solo el campo envia por body
+  };
+
+  return res.status(200).json({
+    mensaje: `Viaje con ${placa} se actualizado correctamente`,
+    vehiculoActualizado: listOfVehicle[vehicle]
+  });
+}
+
 const deleteVehicle = (req, res) => {
 
   const {placa} = req.params;
@@ -82,6 +106,6 @@ const deleteVehicle = (req, res) => {
   });
 }
 
-module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner, deleteVehicle };
+module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner,updateVehicle, deleteVehicle };
 
 

@@ -1,6 +1,6 @@
 const Trip = require("../models/Trip");
 const getFechaInicioPorRango = require("../utils/dateUtils");
-const {listOfTrips} = require("../db/tripData")
+const { listOfTrips } = require("../db/tripData")
 
 const addTrip = (req, res) => {
 
@@ -31,25 +31,36 @@ const addTrip = (req, res) => {
 
 const getAllTrip = (req, res) => {
   const rango = req.query.rango || "semana";
+  const orden = req.query.orden || "desc"; // Por defecto descendente
 
   const fechaInicio = getFechaInicioPorRango(rango);
-  let filteredTrips= [];
+  let filteredTrips = [];
 
+  if (!fechaInicio) {
+    return res.status(400).json({
+      mensaje: `El valor del rango '${rango}' no es válido. Usa: semana, mes, 3meses, 6meses o año.`
+    });
+  }
+  // Filtrar los viajes que tienen fechaInicio mayor o igual al rango
   if (fechaInicio) {
-    filteredTrips = listOfTrips.filter(trip => (new Date(trip.fechaInicio)>= fechaInicio));
+    filteredTrips = listOfTrips.filter(trip => (new Date(trip.fechaInicio) >= fechaInicio));
   } else {
     filteredTrips = listOfTrips;
   }
-  console.log("En controlador:", listOfTrips.length);
-  res.status(200).json({
-  count: listOfTrips.length,
-  data: listOfTrips
-});
+
+  //implementacion de orden de viajes
+  if (orden === "asc") {
+    filteredTrips.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+  } else {
+    filteredTrips.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
+  }
+  res.status(200).json(filteredTrips);
 }
 
 const getTripByPlaca = (req, res) => {
   const { placa } = req.params;
   const rango = req.query.rango || null;
+  const orden = req.query.orden || "desc";
 
   if (!placa) {
     return res.status(400).json({
@@ -59,22 +70,37 @@ const getTripByPlaca = (req, res) => {
 
   let filteredTrip = listOfTrips.filter(trip => trip.placa === placa);
 
-  if (filteredTrip === 0) {
+  if (filteredTrip.length === 0) {
     return res.status(404).json({
       mensaje: `No se encontraron viajes par la placa: ${placa}.`
     });
   }
   if (rango) {
     const fechaInicio = getFechaInicioPorRango(rango);
+    if (!fechaInicio) {
+      return res.status(400).json({
+        mensaje: `El valor del rango '${rango}' no es válido. Usa: semana, mes, 3meses, 6meses o año.`
+      });
+    }
+
     if (fechaInicio) {
       filteredTrip = filteredTrip.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
     }
   }
-    res.status(200).json(filteredTrip);
+
+  // Ordenar por fecha
+  if (orden === "asc") {
+    filteredTrip.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+  } else {
+    filteredTrip.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
+  }
+
+  res.status(200).json(filteredTrip);
 }
 
 const getTripByEmpresa = (req, res) => {
   const { nombreEmpresa, rango } = req.query;
+  const orden = req.query.orden || "desc";
 
   if (!nombreEmpresa) {
     return res.status(400).json({
@@ -82,7 +108,7 @@ const getTripByEmpresa = (req, res) => {
     });
   }
 
-  let filteredTrip = listOfTrips.filter(trip => trip.nombreEmpresa === nombreEmpresa);
+  let filteredTrip = listOfTrips.filter(trip => trip.nombreEmpresa.toLowerCase() === nombreEmpresa.toLowerCase());
 
   if (filteredTrip.length === 0) {
     return res.status(404).json({
@@ -92,46 +118,67 @@ const getTripByEmpresa = (req, res) => {
 
   if (rango) {
     const fechaInicio = getFechaInicioPorRango(rango);
+    if (!fechaInicio) {
+      return res.status(400).json({
+        mensaje: `El valor del rango '${rango}' no es válido. Usa: semana, mes, 3meses, 6meses o año.`
+      });
+    }
+
     if (fechaInicio) {
       filteredTrip = filteredTrip.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
     }
   }
+
+  // Ordenar por fecha
+  if (orden === "asc") {
+    filteredTrip.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+  } else {
+    filteredTrip.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
+  }
+
   res.status(200).json(filteredTrip);
 }
 
+const updateTrip = (req, res) => {
+  const { manifiesto } = req.params;
+  const dataToUpdate = req.body;
 
-const getTripByFilters = (req, res) => {
-  const { placa, nombreEmpresa, fechaInicio, fechaFin } = req.query;
+  const existingTrip = listOfTrips.findIndex(trip => trip.manifiesto === manifiesto);
 
-  if (!placa && !nombreEmpresa && !fechaInicio && !fechaFin) {
-    return res.status(400).json({
-      mensaje: "Debes de enviar al menos un filtro para realizar la busqueda."
-    });
-  }
-
-  let filteredTrips = listOfTrips;
-
-  if (placa) {
-    filteredTrips = filteredTrips.filter(trip => trip.placa === placa);
-  }
-
-  if (nombreEmpresa) {
-    filteredTrips = filteredTrips.filter(trip => trip.nombreEmpresa === nombreEmpresa);
-  }
-
-  filteredTrips = filteredTrips.filter(trip => {
-    return trip.fechaInicio >= fechaInicio && trip.fechaFin <= fechaFin;
-  });
-
-  if (filteredTrips.length === 0) {
+  if (existingTrip === -1) {
     return res.status(404).json({
-      mensaje: "NO se encontraron viajes con los filtros aplicado"
+      mensaje: `No se encontró ningún viaje con el manifiesto: ${manifiesto}`
     });
   }
 
-  res.status(200).json(filteredTrips);
+  // actualizamos con el spread operation
+  listOfTrips[existingTrip] = {
+    ...listOfTrips[existingTrip], // copia todo el objeto
+    ...dataToUpdate // cambio solo el campo enviapor body
+  };
+
+  return res.status(200).json({
+    mensaje: `Viaje con manifiesto ${manifiesto} se actualizado correctamente`,
+    viajeActualizado: listOfTrips[existingTrip]
+  });
 
 }
 
+const deleteTrip = (req, res) => {
+  const { manifiesto } = req.params;
+  const existingTrip = listOfTrips.findIndex(trip => trip.manifiesto === manifiesto);
 
-module.exports = { addTrip, getAllTrip, getTripByPlaca, getTripByEmpresa, getTripByFilters };
+  if (existingTrip === -1) {
+    return res.status(404).json({
+      mensaje: `No se encontró ningún viaje con el manifiesto: ${manifiesto}`
+    });
+  }
+
+  listOfTrips.splice(existingTrip, 1);
+  return res.status(200).json({
+    mensaje: `Viaje con manifiesto ${manifiesto} eliminado exitosamente`
+  });
+}
+
+
+module.exports = { addTrip, getAllTrip, getTripByPlaca, getTripByEmpresa, updateTrip, deleteTrip };
