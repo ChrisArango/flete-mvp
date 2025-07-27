@@ -1,7 +1,7 @@
 // ver informacion detallada en proyecto flet-notion
-
+require('./utils/exampleTrips');
 const app = require('./app');
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
 
 dotenv.config();
 
