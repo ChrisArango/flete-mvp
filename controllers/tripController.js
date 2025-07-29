@@ -68,11 +68,11 @@ const getTripByPlaca = (req, res) => {
     });
   }
 
-  let filteredTrip = listOfTrips.filter(trip => trip.placa === placa);
+  let filteredTrips = listOfTrips.filter(trip => trip.placa === placa);
 
-  if (filteredTrip.length === 0) {
+  if (filteredTrips.length === 0) {
     return res.status(404).json({
-      mensaje: `No se encontraron viajes par la placa: ${placa}.`
+      mensaje: `No se encontraron viajes para la placa: ${placa}.`
     });
   }
   if (rango) {
@@ -84,18 +84,18 @@ const getTripByPlaca = (req, res) => {
     }
 
     if (fechaInicio) {
-      filteredTrip = filteredTrip.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
+      filteredTrips = filteredTrips.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
     }
   }
 
   // Ordenar por fecha
   if (orden === "asc") {
-    filteredTrip.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+    filteredTrips.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
   } else {
-    filteredTrip.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
+    filteredTrips.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
   }
 
-  res.status(200).json(filteredTrip);
+  res.status(200).json(filteredTrips);
 }
 
 const getTripByEmpresa = (req, res) => {
@@ -108,9 +108,9 @@ const getTripByEmpresa = (req, res) => {
     });
   }
 
-  let filteredTrip = listOfTrips.filter(trip => trip.nombreEmpresa.toLowerCase() === nombreEmpresa.toLowerCase());
+  let filteredTrips = listOfTrips.filter(trip => trip.nombreEmpresa.toLowerCase() === nombreEmpresa.toLowerCase());
 
-  if (filteredTrip.length === 0) {
+  if (filteredTrips.length === 0) {
     return res.status(404).json({
       mensaje: `No se encontraron viajes para la empresa : ${nombreEmpresa}.`
     });
@@ -125,18 +125,18 @@ const getTripByEmpresa = (req, res) => {
     }
 
     if (fechaInicio) {
-      filteredTrip = filteredTrip.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
+      filteredTrips = filteredTrips.filter(trip => new Date(trip.fechaInicio) >= fechaInicio);
     }
   }
 
   // Ordenar por fecha
   if (orden === "asc") {
-    filteredTrip.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+    filteredTrips.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
   } else {
-    filteredTrip.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
+    filteredTrips.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
   }
 
-  res.status(200).json(filteredTrip);
+  res.status(200).json(filteredTrips);
 }
 
 const updateTrip = (req, res) => {
