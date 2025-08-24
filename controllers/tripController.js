@@ -1,6 +1,6 @@
 const Trip = require("../models/Trip");
 const getFechaInicioPorRango = require("../utils/dateUtils");
-const { listOfTrips } = require("../db/tripData")
+const { listOfTrips } = require("../db/tripData");
 
 const addTrip = (req, res) => {
 
@@ -54,6 +54,7 @@ const getAllTrip = (req, res) => {
   } else {
     filteredTrips.sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
   }
+  console.log("Cantidad de viajes en memoria:", listOfTrips.length);
   res.status(200).json(filteredTrips);
 }
 

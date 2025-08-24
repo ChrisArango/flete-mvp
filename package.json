@@ -14,7 +14,8 @@
   "description": "MVP para dueños de tractocamiones",
   "dependencies": {
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
   },
   "devDependencies": {
     "eslint": "^9.27.0",

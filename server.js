@@ -1,9 +1,11 @@
 // ver informacion detallada en proyecto flet-notion
-require('./utils/exampleTrips');
+// require('./db/tripData');
 const app = require('./app');
 const dotenv = require('dotenv');
+const connectDB = require("./db/db");
 
 dotenv.config();
+connectDB();
 
 const PORT = process.env.PORT || 3000;
 
