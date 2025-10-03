@@ -1,5 +1,4 @@
 // ver informacion detallada en proyecto flet-notion
-// require('./db/tripData');
 const app = require('./app');
 const dotenv = require('dotenv');
 const connectDB = require("./db/db");

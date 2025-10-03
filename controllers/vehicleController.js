@@ -1,111 +1,154 @@
-const Vehicle = require("../models/Vehicle");
+const Vehicle = require("../models/vehicleModel");
 
-let listOfVehicle = [];
+const registertVehicle = async (req, res) => {
 
-const addVehicle = (req, res) => {
+  try {
 
-  const { placa, marca, modelo, clase, ownerId } = req.body;
+    const { ownerId, placa, marca, modelo, clase } = req.body;
 
-  if (!placa || !marca || !modelo || !clase || !ownerId) {
-    return res.status(400).json({
-      mensaje: "Todos los campos son obligatorios."
+    if (!ownerId || !placa || !marca || !modelo || !clase) {
+      return res.status(400).json({
+        mensaje: "Todos los campos son obligatorios."
+      });
+    }
+
+
+    const existingVehicle = await Vehicle.findOne({ placa });
+    if (existingVehicle) {
+      return res.status(400).json({
+        mensaje: "Ya existe un vehiculo con esta placa"
+      });
+    }
+
+    const newVehicle = new Vehicle({
+      ownerId,
+      placa,
+      marca,
+      modelo,
+      clase
+    });
+
+    await newVehicle.save();
+    res.status(201).json({
+      mensaje: "Vehiculo creado exitosamente",
+      vehicleId: newVehicle._id
     });
   }
-
-  const existingVehicle = listOfVehicle.find(vehicle => vehicle.placa === placa);
-  if (existingVehicle) {
-    return res.status(400).json({
-      mensaje: "Esta placa ya esta registrada"
+  catch (error) {
+    res.status(500).json({
+      mensaje: "Error al crear el vehiculo",
+      error: error.message
     });
-  }
-
-  const newVehicle = new Vehicle(placa, marca, modelo, clase, ownerId);
-
-  listOfVehicle.push(newVehicle);
-  res.status(201).json({
-    mensaje: "Vehiculo registado exitosamente",
-    Vehiculo: newVehicle
-  });
-}
-
-const getAllVehicle = (req, res) => {
-  res.status(200).json(listOfVehicle)
-}
-
-const getVehicleByPlaca = (req, res) => {
-  const { placa } = req.params;
-
-  const vehicle = listOfVehicle.find(vehicle => vehicle.placa === placa);
-  if (!vehicle) {
-    return res.status(404).json({
-      mensaje: "Vehiculo no encontrado"
-    });
-  }
-  res.status(200).json(vehicle);
-}
-
-const getVehicleByOwner = (req, res) => {
-  const { ownerId } = req.query;
-
-  if (!ownerId) {
-    return res.status(400).json({
-      mensaje: "Se requiere el ID del propietario para la consulta."
-    });
-  }
-
-  const filteredVehicle = listOfVehicle.filter(vehicle => vehicle.ownerId === ownerId);
-
-  if (filteredVehicle.length === 0) {
-    return res.status(404).json({
-      mensaje: "No se encontraron vehiculos para este propietario."
-    });
-  }
-
-  res.status(200).json(filteredVehicle);
-}
-
-const updateVehicle = (req, res) => {
-  const {placa} = req.params;
-  const dataToUpdate = req.body;
-
-  const vehicle = listOfVehicle.findIndex(vehicle => vehicle.placa === placa);
-
-  if(vehicle === -1) {
-    return res.status(404).json({
-      mesaje: "Vehiculo no encontrado"
-    });
-  }
-
-  // actualizamos con el spread operation
-  listOfVehicle[vehicle] = {
-    ...listOfVehicle[vehicle], // copia todo el objeto
-    ...dataToUpdate // cambio solo el campo envia por body
   };
-
-  return res.status(200).json({
-    mensaje: `Viaje con ${placa} se actualizado correctamente`,
-    vehiculoActualizado: listOfVehicle[vehicle]
-  });
 }
 
-const deleteVehicle = (req, res) => {
+const getVehicleById = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) {
+      return res.status(404).json({
+        mensaje: "Vehiculo no encontrado"
+      });
+    }
+    res.json(vehicle);
+  }
+  catch (error) {
+    res.status(500).json({
+      mensaje: "Error al obtener vehiculo",
+      error: error.message
+    });
+  };
+}
 
-  const {placa} = req.params;
+const getVehicleByPlaca = async (req, res) => {
+  try {
 
-  const vehicle = listOfVehicle.findIndex(vehicle => vehicle.placa === placa);
+    const { placa } = req.params;
 
-  if(vehicle === -1) {
-    return res.status(404).json({
-      mesaje: "Vehiculo no encontrado"
+    const vehicle = await Vehicle.findOne({ placa });
+    if (!vehicle) {
+      return res.status(404).json({
+        mensaje: "Vehiculo no encontrado"
+      });
+    }
+    res.json(vehicle);
+  } catch (error) {
+    res.status(500).json({
+      mensaje: "Error al obtener vehiculo por placa.",
+      error: error.message
     });
   }
+};
 
-  listOfVehicle.splice(vehicle, 1);
-  return res.status(200).json({
-    mensaje: "Vehiculo eliminado exitosamente"
-  });
+const getVehicleByOwner = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    const vehicles = await Vehicle.find({ ownerId });
+    if (vehicles.length === 0) {
+      return res.status(404).json({
+        mensaje: "No existe vehiculos para este propietario"
+      });
+    }
+    res.json(vehicles);
+  }
+  catch (error) {
+    res.status(500).json({
+      mensaje: "Error al obtener vehículos del porpietario",
+      error: error.message
+    });
+  }
 }
 
-module.exports = { addVehicle, getAllVehicle, getVehicleByPlaca, getVehicleByOwner,updateVehicle, deleteVehicle };
+const updateVehicle = async (req, res) => {
+  try {
+    const { ownerId, placa, marca, modelo, clase } = req.body;
+
+    const updatedVehicle = await Vehicle.findByIdAndUpdate(
+      req.params.id,
+      { ownerId, placa, marca, modelo, clase },
+      { new: true, runValidators: true, context: "query" });
+
+    if (!updatedVehicle) {
+      return res.status(404).json({
+        mensaje: "Vehiculo no encontrado"
+      });
+    }
+    res.json({
+      mensaje: "Vehiculo actualizado exitosamente",
+      vehicle: updatedVehicle
+    });
+
+  }
+  catch (error) {
+    res.status(500).json({
+      mensaje: " Error al actualizar Vehiculo",
+      error: error.message
+    });
+  }
+}
+
+const deleteVehicle = async (req, res) => {
+  try {
+
+    const deletedVehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    if (!deletedVehicle) {
+      return res.status(404).json({
+        mensaje: "Vehiculo no encontrado"
+      });
+    }
+    res.json({
+      mensaje: "Vehiculo eliminado exitosamente"
+    });
+  }
+  catch (error) {
+    res.status(500).json({
+      mensaje: "Error al eliminar vehiculo",
+      error: error.message
+    });
+  }
+};
+
+module.exports = { registertVehicle, getVehicleById, getVehicleByPlaca, getVehicleByOwner, updateVehicle, deleteVehicle };
 
 
