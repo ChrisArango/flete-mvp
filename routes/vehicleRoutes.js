@@ -17,10 +17,10 @@ router.get("/placa/:placa", vehicleController.getVehicleByPlaca);
 // Obtener vehiculo por id
 router.get('/id/:id', vehicleController.getVehicleById);
 
-// PUT: Actualizar vehiculos por placa
+// PUT: Actualizar vehiculos por id
 router.put('/id/:id', vehicleController.updateVehicle);
 
-// DELETE: eliminar vehiculo por placa
+// DELETE: eliminar vehiculo por id
 router.delete('/id/:id', vehicleController.deleteVehicle);
 
 module.exports = router;

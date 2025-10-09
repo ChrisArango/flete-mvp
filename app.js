@@ -12,7 +12,7 @@ app.use(express.json());
 app.use("/api/admin", userAdminRoutes);
 app.use("/api/owners", ownerRoutes);
 app.use("/api/vehicles", vehicleRoutes);
-// app.use("/api/trips", tripRoutes);
+app.use("/api/trips", tripRoutes);
 
 app.get('/', (req, res) => {
     res.send('¡Servidor funcionando correctamente!');
