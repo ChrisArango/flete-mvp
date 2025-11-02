@@ -5,10 +5,10 @@ const registerOwner = async (req, res) => {
   try {
 
     // 1. Extraemos los datos que vienen en la petición (req.body)
-    const { tipo, nombre, documentoId, celular, email, password } = req.body
+    const { rol, nombre, documentoId, celular, email, password } = req.body
 
     // 2. Validamos que los campos obligatorios estén presentes
-    if (!tipo || !nombre || !documentoId || !email || !celular || !password) {
+    if (!rol || !nombre || !documentoId || !celular || !email || !password) {
       return res.status(400).json({
         mensaje: "Todos los campos son obligatorios."
       });
@@ -22,12 +22,9 @@ const registerOwner = async (req, res) => {
       });
     }
 
-    // 4. Encriptamos la contraseña antes de guardarla
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 5. Creamos un nuevo Owner
+    // 4. Creamos un nuevo Owner
     const newOwner = new Owner({
-      tipo,
+      rol,
       nombre,
       documentoId,
       celular,
@@ -35,8 +32,10 @@ const registerOwner = async (req, res) => {
       password: hashedPassword
     });
 
-    // 6. Guardamos en base de datos y Respondemos al cliente con exito
+    // 5. Guardamos en base de datos y Respondemos al cliente con exito
     await newOwner.save();
+
+    // 6. respuesta exitosa
     res.status(201).json({
       mensaje: "Propietario registrado exitosamente",
       ownerId: newOwner._id
@@ -71,11 +70,11 @@ const getOwnerById = async (req, res) => {
 
 const updateOwner = async (req, res) => {
   try {
-    const { tipo, nombre, documentoId, celular, email } = req.body;
+    const { rol, nombre, documentoId, celular, email } = req.body;
 
     const updatedOwner = await Owner.findByIdAndUpdate(
       req.params.id,
-      { tipo, nombre, documentoId, celular, email },
+      { rol, nombre, documentoId, celular, email },
       { new: true, runValidators: true, context: "query" }).select("-password");
 
     if (!updatedOwner) {

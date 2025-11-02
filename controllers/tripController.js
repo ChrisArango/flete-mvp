@@ -201,4 +201,5 @@ const deleteTrip = async (req, res) => {
   }
 };
 
+
 module.exports = { registerTrip, getTripById, getTripByPlaca, getTripByOwner, getTripByEmpresa, getTripByManifiesto, updateTrip, deleteTrip }

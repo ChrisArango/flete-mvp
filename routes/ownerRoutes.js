@@ -1,9 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const ownerController = require('../controllers/ownerController');
+const ownerValidator = require('../validators/ownerValidator');
+const handleValidator = require('../middlewares/handleValidator');
 
-// Registro de Propietario
-router.post('/register', ownerController.registerOwner);
+// Registro de Propietario (con validacion)
+router.post('/register',
+  ownerValidator.validatorRegisterOwner, // validaviones
+  handleValidator,                       // manejo de error
+  ownerController.registerOwner          // controlador final
+);
 
 // Obtener informacion del propietario
 router.get('/:id', ownerController.getOwnerById);
