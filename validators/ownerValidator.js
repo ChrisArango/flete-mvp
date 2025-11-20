@@ -4,6 +4,7 @@ const validator = require("express-validator");
 const validatorRegisterOwner = [
 
   validator.body("rol")
+    .trim()
     .custom((value) => {
       if (value && value === "admin") {
         throw new Error("No puedes asignarte el rol de admin");
@@ -31,7 +32,7 @@ const validatorRegisterOwner = [
     .isEmail().withMessage("Formato de correo invalido"),
 
   validator.body("password")
-    .notEmpty().withMessage("La contraseña  es obligatorio")
+    .notEmpty().withMessage("La contraseña  es obligatoria")
     .isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
 
 ]
