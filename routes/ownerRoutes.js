@@ -4,6 +4,7 @@ const ownerController = require('../controllers/ownerController');
 const ownerValidator = require('../validators/ownerValidator');
 const loginOwnerValidator = require('../validators/loginValidator');
 const handleValidator = require('../middlewares/handleValidator');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // Registro de Propietario (con validacion)
 router.post('/register',
@@ -20,15 +21,21 @@ router.post('/login',
 )
 
 // Obtener informacion del propietario
-router.get('/:id', ownerController.getOwnerById);
+router.get('/:id',
+  authMiddleware,
+  ownerController.getOwnerById);
 
 // Actualizar infro propietario
-router.put('/:id', ownerController.updateOwner);
+router.put('/:id',
+  authMiddleware,
+  ownerController.updateOwner);
 
 // Eliminar propietario
-router.delete('/:id', ownerController.deleteOwner);
+router.delete('/:id',
+  authMiddleware,
+  ownerController.deleteOwner);
 
 module.exports = router;
 
 
-// falta fase 6 en adelante  ( hacer pruebas)
+// ya protegi rutas de owner, trip y vehicle flyta hacer pruebas y luego seguir en e proyecto , podria hrefinar lo de admin  ( hacer pruebas)

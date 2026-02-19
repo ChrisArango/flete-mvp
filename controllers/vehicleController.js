@@ -1,12 +1,15 @@
 const Vehicle = require("../models/vehicleModel");
 
-const registertVehicle = async (req, res) => {
+const registerVehicle = async (req, res) => {
 
   try {
 
-    const { ownerId, placa, marca, modelo, clase } = req.body;
+    const { placa, marca, modelo, clase } = req.body;
 
-    if (!ownerId || !placa || !marca || !modelo || !clase) {
+    // Ahora Ya no se pide el ownerId
+    const ownerId = req.user;    // <-- viene del token
+
+    if (!placa || !marca || !modelo || !clase) {
       return res.status(400).json({
         mensaje: "Todos los campos son obligatorios."
       });
@@ -29,6 +32,7 @@ const registertVehicle = async (req, res) => {
     });
 
     await newVehicle.save();
+
     res.status(201).json({
       mensaje: "Vehiculo creado exitosamente",
       vehicleId: newVehicle._id
@@ -44,7 +48,9 @@ const registertVehicle = async (req, res) => {
 
 const getVehicleById = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findById(req.params.id);
+    const vehicle = await Vehicle.findById(req.params.id)
+      .populate("ownerId", "nombre documentoId email")
+
     if (!vehicle) {
       return res.status(404).json({
         mensaje: "Vehiculo no encontrado"
@@ -65,7 +71,9 @@ const getVehicleByPlaca = async (req, res) => {
 
     const { placa } = req.params;
 
-    const vehicle = await Vehicle.findOne({ placa });
+    const vehicle = await Vehicle.findOne({ placa })
+      .populate("ownerId", "nombre documentoId email");
+
     if (!vehicle) {
       return res.status(404).json({
         mensaje: "Vehiculo no encontrado"
@@ -82,9 +90,11 @@ const getVehicleByPlaca = async (req, res) => {
 
 const getVehicleByOwner = async (req, res) => {
   try {
-    const { ownerId } = req.params;
+    const ownerId = req.user; // <-- dueño autenticado
 
-    const vehicles = await Vehicle.find({ ownerId });
+    const vehicles = await Vehicle.find({ ownerId })
+      .populate("ownerId", "nombre documentoId email");
+
     if (vehicles.length === 0) {
       return res.status(404).json({
         mensaje: "No existe vehiculos para este propietario"
@@ -94,7 +104,7 @@ const getVehicleByOwner = async (req, res) => {
   }
   catch (error) {
     res.status(500).json({
-      mensaje: "Error al obtener vehículos del porpietario",
+      mensaje: "Error al obtener vehículos del propietario",
       error: error.message
     });
   }
@@ -102,16 +112,19 @@ const getVehicleByOwner = async (req, res) => {
 
 const updateVehicle = async (req, res) => {
   try {
-    const { ownerId, placa, marca, modelo, clase } = req.body;
+    const ownerId = req.user;  // <--- evita cambiar ownerId , dueño autenticado
 
-    const updatedVehicle = await Vehicle.findByIdAndUpdate(
-      req.params.id,
-      { ownerId, placa, marca, modelo, clase },
-      { new: true, runValidators: true, context: "query" });
+    const { placa, marca, modelo, clase } = req.body;
+
+    // Validamos  que le vehculo le pertenezca
+    const updatedVehicle = await Vehicle.findOneAndUpdate(
+      { _id: req.params.id, ownerId },  // <--- dueño solo actualiza lo suyo
+      { placa, marca, modelo, clase },
+      { new: true, runValidators: true });
 
     if (!updatedVehicle) {
       return res.status(404).json({
-        mensaje: "Vehiculo no encontrado"
+        mensaje: "Vehiculo no encontrado o no pertenece al propietario"
       });
     }
     res.json({
@@ -131,10 +144,16 @@ const updateVehicle = async (req, res) => {
 const deleteVehicle = async (req, res) => {
   try {
 
-    const deletedVehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    const ownerId = req.user;
+
+    const deletedVehicle = await Vehicle.findOneAndDelete({
+      _id: req.params.id,
+      ownerId
+    });
+
     if (!deletedVehicle) {
       return res.status(404).json({
-        mensaje: "Vehiculo no encontrado"
+        mensaje: "Vehiculo no encontrado o no pertenece al porpietario"
       });
     }
     res.json({
@@ -149,6 +168,8 @@ const deleteVehicle = async (req, res) => {
   }
 };
 
-module.exports = { registertVehicle, getVehicleById, getVehicleByPlaca, getVehicleByOwner, updateVehicle, deleteVehicle };
+module.exports = { registerVehicle, getVehicleById, getVehicleByPlaca, getVehicleByOwner, updateVehicle, deleteVehicle };
 
 
+// ya adiciones populate en las 3 primera fucniones  ahora solo falta hacer prueba enpostman , luegi hacer commit
+// ya cree 3 propietario , ahora falta hacer login en cada uno y registar los vehiculos  y revisar que funciones las rutas y el populate
